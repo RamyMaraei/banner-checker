@@ -221,11 +221,12 @@ function renderChannels(data) {
       <div class="channel-name">${name}</div>
       <a class="channel-link" href="${url}" target="_blank">${url}</a>
       <img src="${avatar}" alt="Avatar">
-      <img src="${banner}" alt="Banner" style="width:2560px;height:338px;object-fit:cover;border-radius:10px;" />
+      <img src="${banner}" alt="Banner" style="display:block; max-width:2560px; width:100%; height:338px; object-fit:cover; border-radius:10px; margin:10px auto;" />
     `;
     container.appendChild(div);
   });
 }
+
 
     function filterChannels() {
       const keyword = document.getElementById("searchInput").value.toLowerCase();
