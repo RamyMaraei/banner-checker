@@ -37,17 +37,9 @@
       max-width: 150px;
     }
 
-    .logo-light {
-      display: none;
-    }
-
-    body.light .logo-dark {
-      display: none;
-    }
-
-    body.light .logo-light {
-      display: block;
-    }
+    .logo-light { display: none; }
+    body.light .logo-dark { display: none; }
+    body.light .logo-light { display: block; }
 
     h1 {
       text-align: center;
@@ -99,9 +91,7 @@
       font-family: 'Alexandria', sans-serif;
     }
 
-    button:hover {
-      background-color: #666;
-    }
+    button:hover { background-color: #666; }
 
     #channelCount {
       text-align: center;
@@ -158,9 +148,7 @@
       transition: opacity 0.3s ease;
     }
 
-    #backToTop:hover {
-      background-color: #666;
-    }
+    #backToTop:hover { background-color: #666; }
 
     footer {
       text-align: center;
@@ -195,30 +183,12 @@
 
   <button id="backToTop" onclick="scrollToTop()" title="العودة لأعلى">🔝</button>
 
-  <footer id="footerText">
-    <script>document.write(`${new Date().getFullYear()} © تصميم و تنفيذ رامي مرعي و جميع الحقوق محفوظة - شركة الفان<br>جميع البيانات الظاهرة يتم جلبها من واجهة برمجة تطبيقات YouTube API.`)  loadChannels();
-  applyLang();
-  loadChannels();
-  setTimeout(applyLang, 300);
-</script>
-  </footer>
+  <footer id="footerText"></footer>
 
   <script>
-    // ... باقي السكربت كما هو، ونضيف داخله بعد applyLang():
-    function applyLang() {
-      const lang = currentLang;
-      document.querySelector("h1").textContent = translations[lang].title;
-      document.getElementById("searchInput").placeholder = translations[lang].search;
-      document.querySelectorAll(".controls button")[1].innerHTML = translations[lang].update;
-      document.querySelectorAll(".controls button")[2].innerHTML = translations[lang].toggle;
-      document.querySelectorAll(".controls button")[3].innerHTML = translations[lang].add;
-      if (allData.length > 0) {
-        document.getElementById("channelCount").textContent = translations[lang].count(allData.length);
-      }
-      document.documentElement.setAttribute("dir", lang === "ar" ? "rtl" : "ltr");
-      document.documentElement.setAttribute("lang", lang);
-      document.getElementById("footerText").innerHTML = translations[lang].footer;
-    }
+    const apiURL = "https://script.google.com/macros/s/AKfycbxjLH-omyFB65r7QBFicTGka3FbxUDOC3zG7l07hnksLsmBtVqpDi-_1pyUX-UcsXtxzA/exec";
+    let allData = [];
+    let currentLang = localStorage.getItem("lang") || "ar";
 
     const translations = {
       ar: {
@@ -228,7 +198,7 @@
         toggle: "🌓 تبديل الوضع",
         add: "➕ أضف / عدل قناة",
         count: n => `تم تحميل ${n} قناة`,
-        footer: `${new Date().getFullYear()} © Designed and developed by Ramy Maraei. All rights reserved - ALFAN Company.<br>All displayed data is fetched from the YouTube Data API.`
+        footer: `${new Date().getFullYear()} © تصميم و تنفيذ رامي مرعي و جميع الحقوق محفوظة - شركة الفان<br>جميع البيانات الظاهرة يتم جلبها من واجهة برمجة تطبيقات YouTube API.`
       },
       en: {
         title: "YouTube Banner Checker",
@@ -237,9 +207,91 @@
         toggle: "🌓 Toggle Theme",
         add: "➕ Add / Edit Channel",
         count: n => `${n} channels loaded`,
-        footer: "Designed and developed by Ramy Maraei. All rights reserved - ALFAN Company.<br>All displayed data is fetched from the YouTube Data API."
+        footer: `${new Date().getFullYear()} © Designed and developed by Ramy Maraei. All rights reserved - ALFAN Company.<br>All displayed data is fetched from the YouTube Data API.`
       }
     };
+
+    function loadChannels() {
+      document.getElementById("channels").innerHTML = "جارٍ التحميل...";
+      fetch(apiURL)
+        .then(res => res.json())
+        .then(data => {
+          allData = data;
+          renderChannels(data);
+          applyLang();
+        })
+        .catch(error => {
+          document.getElementById("channels").innerHTML = "<p>⚠️ فشل في تحميل البيانات.</p>";
+          console.error("Fetch error:", error);
+        });
+    }
+
+    function renderChannels(data) {
+      const container = document.getElementById("channels");
+      const count = document.getElementById("channelCount");
+      container.innerHTML = "";
+      count.textContent = translations[currentLang].count(data.length);
+
+      data.forEach(channel => {
+        const { "Channel ID": id, "Channel Name": name, "Avatar URL": avatar, "Banner URL": banner } = channel;
+        const url = `https://www.youtube.com/channel/${id}`;
+
+        const div = document.createElement("div");
+        div.className = "channel";
+        div.innerHTML = `
+          <div class="channel-name">${name}</div>
+          <a class="channel-link" href="${url}" target="_blank">${url}</a>
+          <img src="${avatar}" alt="Avatar" style="width:80px; height:80px; border-radius:50%; object-fit:cover; display:block; margin:10px auto;" />
+          <img src="${banner}" alt="Banner" style="display:block; width:512px; height:80px; object-fit:none; object-position:center center; overflow:hidden; border-radius:10px; margin:10px auto;" />
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function toggleLang() {
+      currentLang = currentLang === "ar" ? "en" : "ar";
+      localStorage.setItem("lang", currentLang);
+      applyLang();
+    }
+
+    function applyLang() {
+      const lang = currentLang;
+      document.querySelector("h1").textContent = translations[lang].title;
+      document.getElementById("searchInput").placeholder = translations[lang].search;
+      document.querySelectorAll(".controls button")[1].innerHTML = translations[lang].update;
+      document.querySelectorAll(".controls button")[2].innerHTML = translations[lang].toggle;
+      document.querySelectorAll(".controls button")[3].innerHTML = translations[lang].add;
+      document.getElementById("footerText").innerHTML = translations[lang].footer;
+      document.documentElement.setAttribute("dir", lang === "ar" ? "rtl" : "ltr");
+      document.documentElement.setAttribute("lang", lang);
+    }
+
+    function filterChannels() {
+      const keyword = document.getElementById("searchInput").value.toLowerCase();
+      const filtered = allData.filter(c => c["Channel Name"]?.toLowerCase().includes(keyword));
+      renderChannels(filtered);
+    }
+
+    function toggleMode() {
+      const body = document.body;
+      body.classList.toggle("light");
+      localStorage.setItem("theme", body.classList.contains("light") ? "light" : "dark");
+    }
+
+    const backToTopBtn = document.getElementById("backToTop");
+    window.onscroll = function () {
+      backToTopBtn.style.display = (window.scrollY > 200) ? "block" : "none";
+    };
+
+    function scrollToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    if (localStorage.getItem("theme") === "light") {
+      document.body.classList.add("light");
+    }
+
+    loadChannels();
   </script>
 </body>
 </html>
