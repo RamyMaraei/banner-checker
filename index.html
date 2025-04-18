@@ -205,7 +205,7 @@
         });
     }
 
-   function renderChannels(data) {
+function renderChannels(data) {
   const container = document.getElementById("channels");
   const count = document.getElementById("channelCount");
   container.innerHTML = "";
@@ -221,7 +221,7 @@
       <div class="channel-name">${name}</div>
       <a class="channel-link" href="${url}" target="_blank">${url}</a>
       <img src="${avatar}" alt="Avatar">
-      <img src="${banner}" alt="Banner">
+      <img src="${banner}" alt="Banner" style="width:2560px;height:338px;object-fit:cover;border-radius:10px;" />
     `;
     container.appendChild(div);
   });
