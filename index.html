@@ -1,7 +1,8 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Banner Checker</title>
   <style>
     body {
@@ -17,24 +18,21 @@
       background: #fff;
       border: 1px solid #ccc;
       border-radius: 8px;
-      max-width: 100%;
+      max-width: 900px;
       margin: 20px auto;
       padding: 16px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
     .banner {
-      display: block;
-      width: 2560px;
-      height: 338px;
+      width: 100%;
+      max-height: 250px;
       object-fit: cover;
       border-radius: 4px;
-      margin: 0 auto;
     }
     .info {
       display: flex;
       align-items: center;
       margin-top: 12px;
-      justify-content: center;
     }
     .avatar {
       width: 64px;
@@ -42,9 +40,6 @@
       border-radius: 50%;
       margin-right: 12px;
       object-fit: cover;
-    }
-    .details {
-      text-align: left;
     }
     .name {
       font-size: 18px;
@@ -55,16 +50,6 @@
       color: #555;
       margin-top: 4px;
     }
-    .link a {
-      color: #3366cc;
-      text-decoration: none;
-    }
-    @media (max-width: 2600px) {
-      .banner {
-        width: 100%;
-        height: auto;
-      }
-    }
   </style>
 </head>
 <body>
@@ -72,28 +57,23 @@
   <div id="channels"></div>
 
   <script>
-    fetch("https://script.google.com/macros/s/AKfycbxKu22QB21j6SFhyjZFoLe5H-afZHFRgrpbCPSWPqg/exec")
+    fetch("https://script.google.com/macros/s/AKfycbxjLH-omyFB65r7QBFicTGka3FbxUDOC3zG7l07hnksLsmBtVqpDi-_1pyUX-UcsXtxzA/exec")
       .then(res => res.json())
       .then(data => {
         const container = document.getElementById("channels");
         data.forEach(channel => {
-          const channelId = channel['Channel ID'];
           const div = document.createElement("div");
           div.className = "channel";
-          div.innerHTML = `
+          div.innerHTML = 
             <img src="${channel['Banner URL']}" alt="Banner" class="banner" />
             <div class="info">
               <img src="${channel['Avatar URL']}" alt="Avatar" class="avatar" />
-              <div class="details">
+              <div>
                 <div class="name">${channel['Channel Name']}</div>
-                <div class="link">
-                  <a href="https://www.youtube.com/channel/${channelId}" target="_blank">
-                    ${channelId}
-                  </a>
-                </div>
+                <div class="link">${channel['Channel ID'] || ''}</div>
               </div>
             </div>
-          `;
+          ;
           container.appendChild(div);
         });
       });
