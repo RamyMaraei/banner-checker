@@ -172,6 +172,8 @@
   <h1>منصة فحص بانرات قنوات يوتيوب</h1>
 
   <div class="controls">
+<button onclick="toggleLang()">🌐 EN / AR</button>
+
     <span class="search-box">
       <input type="text" id="searchInput" placeholder="ابحث باسم القناة" oninput="filterChannels()" />
     </span>
@@ -260,6 +262,47 @@ function renderChannels(data) {
 
     loadChannels();
   </script>
+let currentLang = localStorage.getItem("lang") || "ar";
+
+const translations = {
+  ar: {
+    title: "منصة فحص بانرات قنوات يوتيوب",
+    search: "ابحث باسم القناة",
+    update: "🔄 تحديث",
+    toggle: "🌓 تبديل الوضع",
+    add: "➕ أضف / عدل قناة",
+    count: n => `تم تحميل ${n} قناة`
+  },
+  en: {
+    title: "YouTube Banner Checker",
+    search: "Search by channel name",
+    update: "🔄 Update",
+    toggle: "🌓 Toggle Theme",
+    add: "➕ Add / Edit Channel",
+    count: n => `${n} channels loaded`
+  }
+};
+
+function applyLang() {
+  const lang = currentLang;
+  document.querySelector("h1").textContent = translations[lang].title;
+  document.getElementById("searchInput").placeholder = translations[lang].search;
+  document.querySelectorAll(".controls button")[0].innerHTML = translations[lang].update;
+  document.querySelectorAll(".controls button")[1].innerHTML = translations[lang].toggle;
+  document.querySelectorAll(".controls button")[2].innerHTML = translations[lang].add;
+  if (allData.length > 0) {
+    document.getElementById("channelCount").textContent = translations[lang].count(allData.length);
+  }
+}
+
+function toggleLang() {
+  currentLang = currentLang === "ar" ? "en" : "ar";
+  localStorage.setItem("lang", currentLang);
+  applyLang();
+}
+
+// عند التحميل نضبط اللغة الحالية
+applyLang();
 
 </body>
 </html>
