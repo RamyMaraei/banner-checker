@@ -205,26 +205,27 @@
         });
     }
 
-    function renderChannels(data) {
-      const container = document.getElementById("channels");
-      const count = document.getElementById("channelCount");
-      container.innerHTML = "";
-      count.textContent = `تم تحميل ${data.length} قناة`;
+   function renderChannels(data) {
+  const container = document.getElementById("channels");
+  const count = document.getElementById("channelCount");
+  container.innerHTML = "";
+  count.textContent = `تم تحميل ${data.length} قناة`;
 
-      data.forEach(channel => {
-        const { "Channel URL": url, "Channel Name": name, "Avatar URL": avatar, "Banner URL": banner } = channel;
+  data.forEach(channel => {
+    const { "Channel ID": id, "Channel Name": name, "Avatar URL": avatar, "Banner URL": banner } = channel;
+    const url = `https://www.youtube.com/channel/${id}`;
 
-        const div = document.createElement("div");
-        div.className = "channel";
-        div.innerHTML = `
-          <div class="channel-name">${name}</div>
-          <a class="channel-link" href="${url}" target="_blank">${url}</a>
-          <img src="${avatar}" alt="Avatar">
-          <img src="${banner}" alt="Banner">
-        `;
-        container.appendChild(div);
-      });
-    }
+    const div = document.createElement("div");
+    div.className = "channel";
+    div.innerHTML = `
+      <div class="channel-name">${name}</div>
+      <a class="channel-link" href="${url}" target="_blank">${url}</a>
+      <img src="${avatar}" alt="Avatar">
+      <img src="${banner}" alt="Banner">
+    `;
+    container.appendChild(div);
+  });
+}
 
     function filterChannels() {
       const keyword = document.getElementById("searchInput").value.toLowerCase();
