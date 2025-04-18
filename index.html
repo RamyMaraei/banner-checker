@@ -163,17 +163,13 @@
   </style>
 </head>
 <body>
-
-  <!-- شعار الوضع الليلي -->
   <img class="logo logo-dark" src="ALFAN_LOGO-LIGHT-Small.png" alt="Logo Dark" />
-  <!-- شعار الوضع الفاتح -->
   <img class="logo logo-light" src="ALFAN_LOGO-Small.png" alt="Logo Light" />
 
   <h1>منصة فحص بانرات قنوات يوتيوب</h1>
 
   <div class="controls">
-<button onclick="toggleLang()">🌐 EN / AR</button>
-
+    <button onclick="toggleLang()">🌐 EN / AR</button>
     <span class="search-box">
       <input type="text" id="searchInput" placeholder="ابحث باسم القناة" oninput="filterChannels()" />
     </span>
@@ -207,29 +203,28 @@
         });
     }
 
-function renderChannels(data) {
-  const container = document.getElementById("channels");
-  const count = document.getElementById("channelCount");
-  container.innerHTML = "";
-  count.textContent = `تم تحميل ${data.length} قناة`;
+    function renderChannels(data) {
+      const container = document.getElementById("channels");
+      const count = document.getElementById("channelCount");
+      container.innerHTML = "";
+      count.textContent = translations[currentLang].count(data.length);
 
-  data.forEach(channel => {
-    const { "Channel ID": id, "Channel Name": name, "Avatar URL": avatar, "Banner URL": banner } = channel;
-    const url = `https://www.youtube.com/channel/${id}`;
+      data.forEach(channel => {
+        const { "Channel ID": id, "Channel Name": name, "Avatar URL": avatar, "Banner URL": banner } = channel;
+        const url = `https://www.youtube.com/channel/${id}`;
 
-    const div = document.createElement("div");
-    div.className = "channel";
-    div.innerHTML = `
-      <div class="channel-name">${name}</div>
-      <a class="channel-link" href="${url}" target="_blank">${url}</a>
-      <img src="${avatar}" alt="Avatar" style="width:80px; height:80px; border-radius:50%; object-fit:cover; display:block; margin:10px auto;" />
-<img src="${banner}" alt="Banner"
-     style="display:block; width:512px; height:80px; object-fit:none; object-position:center center; overflow:hidden; border-radius:10px; margin:10px auto;" />
-    `;
-    container.appendChild(div);
-  });
-}
-
+        const div = document.createElement("div");
+        div.className = "channel";
+        div.innerHTML = `
+          <div class="channel-name">${name}</div>
+          <a class="channel-link" href="${url}" target="_blank">${url}</a>
+          <img src="${avatar}" alt="Avatar" style="width:80px; height:80px; border-radius:50%; object-fit:cover; display:block; margin:10px auto;" />
+          <img src="${banner}" alt="Banner"
+               style="display:block; width:512px; height:80px; object-fit:none; object-position:center center; overflow:hidden; border-radius:10px; margin:10px auto;" />
+        `;
+        container.appendChild(div);
+      });
+    }
 
     function filterChannels() {
       const keyword = document.getElementById("searchInput").value.toLowerCase();
@@ -243,8 +238,8 @@ function renderChannels(data) {
       localStorage.setItem("theme", body.classList.contains("light") ? "light" : "dark");
     }
 
-    if (localStorage.getItem("theme") === "light") {
-      document.body.classList.add("light");
+    function scrollToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     const backToTopBtn = document.getElementById("backToTop");
@@ -256,53 +251,50 @@ function renderChannels(data) {
       }
     };
 
-    function scrollToTop() {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    // الترجمة
+    let currentLang = localStorage.getItem("lang") || "ar";
+
+    const translations = {
+      ar: {
+        title: "منصة فحص بانرات قنوات يوتيوب",
+        search: "ابحث باسم القناة",
+        update: "🔄 تحديث",
+        toggle: "🌓 تبديل الوضع",
+        add: "➕ أضف / عدل قناة",
+        count: n => `تم تحميل ${n} قناة`
+      },
+      en: {
+        title: "YouTube Banner Checker",
+        search: "Search by channel name",
+        update: "🔄 Update",
+        toggle: "🌓 Toggle Theme",
+        add: "➕ Add / Edit Channel",
+        count: n => `${n} channels loaded`
+      }
+    };
+
+    function applyLang() {
+      const lang = currentLang;
+      document.querySelector("h1").textContent = translations[lang].title;
+      document.getElementById("searchInput").placeholder = translations[lang].search;
+      document.querySelectorAll(".controls button")[1].innerHTML = translations[lang].update;
+      document.querySelectorAll(".controls button")[2].innerHTML = translations[lang].toggle;
+      document.querySelectorAll(".controls button")[3].innerHTML = translations[lang].add;
+      if (allData.length > 0) {
+        document.getElementById("channelCount").textContent = translations[lang].count(allData.length);
+      }
+      document.documentElement.setAttribute("dir", lang === "ar" ? "rtl" : "ltr");
+      document.documentElement.setAttribute("lang", lang);
+    }
+
+    function toggleLang() {
+      currentLang = currentLang === "ar" ? "en" : "ar";
+      localStorage.setItem("lang", currentLang);
+      applyLang();
     }
 
     loadChannels();
+    applyLang();
   </script>
-let currentLang = localStorage.getItem("lang") || "ar";
-
-const translations = {
-  ar: {
-    title: "منصة فحص بانرات قنوات يوتيوب",
-    search: "ابحث باسم القناة",
-    update: "🔄 تحديث",
-    toggle: "🌓 تبديل الوضع",
-    add: "➕ أضف / عدل قناة",
-    count: n => `تم تحميل ${n} قناة`
-  },
-  en: {
-    title: "YouTube Banner Checker",
-    search: "Search by channel name",
-    update: "🔄 Update",
-    toggle: "🌓 Toggle Theme",
-    add: "➕ Add / Edit Channel",
-    count: n => `${n} channels loaded`
-  }
-};
-
-function applyLang() {
-  const lang = currentLang;
-  document.querySelector("h1").textContent = translations[lang].title;
-  document.getElementById("searchInput").placeholder = translations[lang].search;
-  document.querySelectorAll(".controls button")[0].innerHTML = translations[lang].update;
-  document.querySelectorAll(".controls button")[1].innerHTML = translations[lang].toggle;
-  document.querySelectorAll(".controls button")[2].innerHTML = translations[lang].add;
-  if (allData.length > 0) {
-    document.getElementById("channelCount").textContent = translations[lang].count(allData.length);
-  }
-}
-
-function toggleLang() {
-  currentLang = currentLang === "ar" ? "en" : "ar";
-  localStorage.setItem("lang", currentLang);
-  applyLang();
-}
-
-// عند التحميل نضبط اللغة الحالية
-applyLang();
-
 </body>
 </html>
