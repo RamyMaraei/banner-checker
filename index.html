@@ -153,11 +153,6 @@
       text-decoration: none;
     }
 
-    .download-banner {
-      text-align: center;
-      margin-top: 10px;
-    }
-
     #backToTop {
       display: none;
       position: fixed;
@@ -183,7 +178,7 @@
   <img class="logo logo-dark" src="ALFAN_LOGO-LIGHT-Small.png" alt="Logo Dark" />
   <img class="logo logo-light" src="ALFAN_LOGO-Small.png" alt="Logo Light" />
 
-  <h1 id="pageTitle">منصة فحص بانرات قنوات يوتيوب</h1>
+  <h1 id="pageTitle">فحص بانرات قنوات يوتيوب</h1>
 
   <div class="controls">
     <div class="category-buttons">
@@ -221,8 +216,7 @@
         toggle: "🌓 تبديل الوضع",
         add: "➕ أضف / عدل قناة",
         count: n => `تم تحميل ${n} قناة`,
-        label: "عدد القنوات بالصفحة",
-        download: "⬇️ تحميل البانر الكامل"
+        label: "عدد القنوات بالصفحة"
       },
       en: {
         title: "YouTube Banner Checker",
@@ -231,8 +225,7 @@
         toggle: "🌓 Toggle Theme",
         add: "➕ Add / Edit Channel",
         count: n => `${n} channels loaded`,
-        label: "Number of channels on page",
-        download: "⬇️ Download Full Banner"
+        label: "Number of channels on page"
       }
     };
 
@@ -269,7 +262,6 @@
       data.forEach(channel => {
         const { "Channel ID": id, "Channel Name": name, "Avatar URL": avatar, "Banner URL": banner } = channel;
         const url = `https://www.youtube.com/channel/${id}`;
-        const fullBannerUrl = `https://img.youtube.com/channel/${id}/channel_banner.jpg`;
 
         const div = document.createElement("div");
         div.className = "channel";
@@ -278,11 +270,6 @@
           <a class="channel-link" href="${url}" target="_blank">${url}</a>
           <img src="${avatar}" alt="Avatar" style="width:80px; height:80px; border-radius:50%; object-fit:cover; margin:10px auto;" />
           <img src="${banner}" alt="Banner" style="display:block; width:512px; height:80px; object-fit:none; object-position:center center; overflow:hidden; border-radius:10px; margin:10px auto;" />
-          <div class="download-banner">
-            <a href="${fullBannerUrl}" target="_blank">
-              <button>${translations[currentLang].download}</button>
-            </a>
-          </div>
         `;
         container.appendChild(div);
       });
