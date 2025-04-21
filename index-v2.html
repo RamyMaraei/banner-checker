@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <title>YouTube Banner Checker</title>
+  <title>YouTube Banner Checker V2</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
@@ -58,20 +58,63 @@
 
     .controls {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
     }
 
-    .controls select,
-    .controls button,
-    .controls input {
-      font-family: 'Alexandria', sans-serif;
+    .search-box {
+      position: relative;
+      display: inline-block;
+    }
+
+    .search-box input[type="text"] {
+      padding: 10px 40px 10px 10px;
       font-size: 16px;
-      padding: 8px 12px;
-      margin: 5px;
+      width: 300px;
       border-radius: 5px;
       border: 1px solid #444;
       background-color: var(--box);
       color: var(--text);
+      direction: rtl;
+    }
+
+    .search-box::before {
+      content: "🔍";
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px;
+      color: var(--text);
+    }
+
+    button {
+      padding: 10px 20px;
+      margin: 5px 5px;
+      font-size: 16px;
+      background-color: var(--button);
+      color: var(--text);
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: 'Alexandria', sans-serif;
+    }
+
+    button:hover {
+      background-color: #666;
+    }
+
+    #channelCount {
+      text-align: center;
+      color: gray;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
+    .channel-count-label {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
     }
 
     .channel {
@@ -105,53 +148,106 @@
       color: var(--link);
       text-decoration: none;
     }
+
+    .download-banner {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    #backToTop {
+      display: none;
+      position: fixed;
+      bottom: 30px;
+      left: 30px;
+      z-index: 999;
+      font-size: 20px;
+      padding: 10px 15px;
+      background-color: var(--button);
+      color: var(--text);
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: opacity 0.3s ease;
+    }
+
+    #backToTop:hover {
+      background-color: #666;
+    }
   </style>
 </head>
 <body>
+
   <img class="logo logo-dark" src="ALFAN_LOGO-LIGHT-Small.png" alt="Logo Dark" />
   <img class="logo logo-light" src="ALFAN_LOGO-Small.png" alt="Logo Light" />
 
-  <h1>منصة فحص بانرات قنوات يوتيوب</h1>
+  <h1 id="pageTitle">منصة فحص بانرات قنوات يوتيوب</h1>
 
   <div class="controls">
-    <select id="categorySelector" onchange="loadChannels()">
-      <option value="VIP">VIP</option>
-      <option value="Network">Network</option>
-      <option value="Music">Music</option>
-    </select>
-    <input type="text" id="searchInput" placeholder="ابحث باسم القناة" oninput="filterChannels()" />
-    <button onclick="toggleMode()">🌓 تبديل الوضع</button>
+    <button onclick="toggleLang()">🌐 EN / AR</button>
+    <span class="search-box">
+      <input type="text" id="searchInput" placeholder="ابحث باسم القناة" oninput="filterChannels()" />
+    </span>
+    <button onclick="loadChannels()" id="updateBtn">🔄 تحديث</button>
+    <button onclick="toggleMode()" id="themeBtn">🌓 تبديل الوضع</button>
+    <button onclick="window.open('https://docs.google.com/spreadsheets/d/1iEDgEpqx4iTXloY1vAq58uqbJl-mrT0nDxbS_u1G1Yg/edit?usp=sharing', '_blank')" id="editBtn">
+      ➕ أضف / عدل قناة
+    </button>
   </div>
 
+  <div class="channel-count-label" id="channelLabel">عدد القنوات بالصفحة</div>
   <p id="channelCount">جارٍ التحميل...</p>
   <div id="channels">جارٍ التحميل...</div>
 
-  <script>
-    let allData = [];
-    let currentCategory = 'VIP';
+  <button id="backToTop" onclick="scrollToTop()" title="العودة لأعلى">🔝</button>
 
-    const apiBase = "https://script.google.com/macros/s/AKfycby6YQKQ20vJJtBF0GFw-gUhL8EuWyThrbjNjff923qZWUZpeQmYJFzI_ylsxnscCBm4/exec";
+  <script>
+    const apiURL = "https://script.google.com/macros/s/AKfycby6YQKQ20vJJtBF0GFw-gUhL8EuWyThrbjNjff923qZWUZpeQmYJFzI_ylsxnscCBm4/exec?category=VIP";
+    let allData = [];
+    let currentLang = localStorage.getItem("lang") || "ar";
+
+    const translations = {
+      ar: {
+        title: "منصة فحص بانرات قنوات يوتيوب",
+        search: "ابحث باسم القناة",
+        update: "🔄 تحديث",
+        toggle: "🌓 تبديل الوضع",
+        add: "➕ أضف / عدل قناة",
+        count: n => `تم تحميل ${n} قناة`,
+        label: "عدد القنوات بالصفحة",
+        download: "⬇️ تحميل البانر الكامل"
+      },
+      en: {
+        title: "YouTube Banner Checker",
+        search: "Search by channel name",
+        update: "🔄 Update",
+        toggle: "🌓 Toggle Theme",
+        add: "➕ Add / Edit Channel",
+        count: n => `${n} channels loaded`,
+        label: "Number of channels on page",
+        download: "⬇️ Download Full Banner"
+      }
+    };
 
     function loadChannels() {
-      currentCategory = document.getElementById("categorySelector").value;
       document.getElementById("channels").innerHTML = "جارٍ التحميل...";
-      fetch(`${apiBase}?category=${currentCategory}`)
+      fetch(apiURL)
         .then(res => res.json())
         .then(data => {
           allData = data;
           renderChannels(data);
         })
-        .catch(err => {
-          console.error(err);
-          document.getElementById("channels").innerHTML = "⚠️ حدث خطأ أثناء تحميل البيانات.";
+        .catch(error => {
+          document.getElementById("channels").innerHTML = "<p>⚠️ فشل في تحميل البيانات.</p>";
         });
     }
 
     function renderChannels(data) {
       const container = document.getElementById("channels");
       const count = document.getElementById("channelCount");
+      const label = document.getElementById("channelLabel");
       container.innerHTML = "";
-      count.textContent = `تم تحميل ${data.length} قناة`;
+      count.textContent = translations[currentLang].count(data.length);
+      label.textContent = translations[currentLang].label;
 
       data.forEach(channel => {
         const { "Channel ID": id, "Channel Name": name, "Avatar URL": avatar, "Banner URL": banner } = channel;
@@ -162,8 +258,13 @@
         div.innerHTML = `
           <div class="channel-name">${name}</div>
           <a class="channel-link" href="${url}" target="_blank">${url}</a>
-          <img src="${avatar}" alt="Avatar" style="width:80px; height:80px; border-radius:50%; object-fit:cover; display:block; margin:10px auto;" />
+          <img src="${avatar}" alt="Avatar" style="width:80px; height:80px; border-radius:50%; object-fit:cover; margin:10px auto;" />
           <img src="${banner}" alt="Banner" style="display:block; width:512px; height:80px; object-fit:none; object-position:center center; overflow:hidden; border-radius:10px; margin:10px auto;" />
+          <div class="download-banner">
+            <a href="${banner}" target="_blank">
+              <button>${translations[currentLang].download}</button>
+            </a>
+          </div>
         `;
         container.appendChild(div);
       });
@@ -181,11 +282,44 @@
       localStorage.setItem("theme", body.classList.contains("light") ? "light" : "dark");
     }
 
+    function toggleLang() {
+      currentLang = currentLang === "ar" ? "en" : "ar";
+      localStorage.setItem("lang", currentLang);
+      applyLang();
+    }
+
+    function applyLang() {
+      const lang = currentLang;
+      document.getElementById("pageTitle").textContent = translations[lang].title;
+      document.getElementById("searchInput").placeholder = translations[lang].search;
+      document.getElementById("updateBtn").textContent = translations[lang].update;
+      document.getElementById("themeBtn").textContent = translations[lang].toggle;
+      document.getElementById("editBtn").textContent = translations[lang].add;
+      document.getElementById("channelLabel").textContent = translations[lang].label;
+      if (allData.length > 0) {
+        document.getElementById("channelCount").textContent = translations[lang].count(allData.length);
+      }
+    }
+
     if (localStorage.getItem("theme") === "light") {
       document.body.classList.add("light");
     }
+    applyLang();
 
-    window.onload = loadChannels;
+    const backToTopBtn = document.getElementById("backToTop");
+    window.onscroll = function () {
+      if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+        backToTopBtn.style.display = "block";
+      } else {
+        backToTopBtn.style.display = "none";
+      }
+    };
+
+    function scrollToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    loadChannels();
   </script>
 </body>
 </html>
