@@ -217,6 +217,7 @@
         add: "➕ أضف / عدل قناة",
         count: n => `تم تحميل ${n} قناة`,
         label: "عدد القنوات بالصفحة"
+        footer: "© 2025 شركة الفان – تصميم وتنفيذ رامي مرعي | البيانات مأخوذة من منصة YouTube"
       },
       en: {
         title: "YouTube Banner Checker",
@@ -226,6 +227,7 @@
         add: "➕ Add / Edit Channel",
         count: n => `${n} channels loaded`,
         label: "Number of channels on page"
+        footer: "© 2025 Alfan Co. – Designed and developed by Ramy Maraei | Data powered by YouTube"
       }
     };
 
@@ -301,6 +303,7 @@
       document.getElementById("themeBtn").textContent = translations[lang].toggle;
       document.getElementById("editBtn").textContent = translations[lang].add;
       document.getElementById("channelLabel").textContent = translations[lang].label;
+      document.getElementById("footerText").textContent = translations[lang].footer;
       if (allData.length > 0) {
         document.getElementById("channelCount").textContent = translations[lang].count(allData.length);
       }
@@ -326,5 +329,9 @@
 
     loadChannels();
   </script>
+  
+<footer id="footerText" style="text-align:center; padding: 20px 10px; font-size:14px; color:gray;"></footer>
+
+
 </body>
 </html>
