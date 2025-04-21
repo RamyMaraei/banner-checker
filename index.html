@@ -11,6 +11,19 @@
 </head>
 <body>
   <!-- logos and interface header unchanged -->
+
+  <h1 id="mainTitle"></h1>
+
+  <div class="controls">
+    <button onclick="setCategory('VIP')">VIP</button>
+    <button onclick="setCategory('Network')">Network</button>
+    <button onclick="setCategory('Music')">Music</button>
+  </div>
+
+  <div id="channelLabel" style="text-align:center; margin-top:10px;"></div>
+  <div id="channelCount" style="text-align:center; margin-bottom:10px; font-weight:bold;"></div>
+  <div id="channels">جارٍ التحميل...</div>
+
   <script>
     let category = "VIP";
     let allData = [];
@@ -83,7 +96,10 @@
       });
     }
 
-    // rest of the script remains unchanged
+    window.onload = () => {
+      document.getElementById("mainTitle").textContent = translations[currentLang].title;
+      loadChannels();
+    }
   </script>
 </body>
 </html>
