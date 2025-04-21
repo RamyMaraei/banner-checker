@@ -178,7 +178,7 @@
   <img class="logo logo-dark" src="ALFAN_LOGO-LIGHT-Small.png" alt="Logo Dark" />
   <img class="logo logo-light" src="ALFAN_LOGO-Small.png" alt="Logo Light" />
 
-  <h1 id="pageTitle">فحص بانرات قنوات يوتيوب</h1>
+  <h1 id="pageTitle">منصة فحص بانرات قنوات يوتيوب</h1>
 
   <div class="controls">
     <div class="category-buttons">
@@ -197,11 +197,13 @@
     </button>
   </div>
 
-  <div class="channel-count-label" id="channelLabel">عدد القنوات بالصفحة</div>
+  <div class="channel-count-label" id="channelLabel"></div>
   <p id="channelCount">جارٍ التحميل...</p>
   <div id="channels">جارٍ التحميل...</div>
 
   <button id="backToTop" onclick="scrollToTop()" title="العودة لأعلى">🔝</button>
+
+  <footer id="footerText" style="text-align:center; padding: 20px 10px; font-size:14px; color:gray;"></footer>
 
   <script>
     let category = "VIP";
@@ -216,7 +218,7 @@
         toggle: "🌓 تبديل الوضع",
         add: "➕ أضف / عدل قناة",
         count: n => `تم تحميل ${n} قناة`,
-        label: "عدد القنوات بالصفحة"
+        label: "عدد القنوات بالصفحة",
         footer: "© 2025 شركة الفان – تصميم وتنفيذ رامي مرعي | البيانات مأخوذة من منصة YouTube"
       },
       en: {
@@ -226,7 +228,7 @@
         toggle: "🌓 Toggle Theme",
         add: "➕ Add / Edit Channel",
         count: n => `${n} channels loaded`,
-        label: "Number of channels on page"
+        label: "Number of channels on page",
         footer: "© 2025 Alfan Co. – Designed and developed by Ramy Maraei | Data powered by YouTube"
       }
     };
@@ -329,9 +331,5 @@
 
     loadChannels();
   </script>
-  
-<footer id="footerText" style="text-align:center; padding: 20px 10px; font-size:14px; color:gray;"></footer>
-
-
 </body>
 </html>
