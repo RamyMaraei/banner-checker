@@ -197,8 +197,9 @@
       ➕ أضف / عدل قناة
     </button>
 
-<span id="qrButtonContainer"></span>
 
+
+<span id="qrButtonContainer"></span>
 <script>
   const lang = localStorage.getItem("lang") || "ar";
   const btn = document.createElement("button");
@@ -206,6 +207,9 @@
   btn.innerHTML = lang === "ar" ? "📷 قارئ QR" : "📷 QR Scanner";
   document.getElementById("qrButtonContainer").appendChild(btn);
 </script>
+
+
+
 
 
 
