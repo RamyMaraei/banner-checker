@@ -7,13 +7,13 @@
     body {
       font-family: 'Alexandria', sans-serif;
       background: #f5f5f5;
-      text-align: center;
-      padding: 2rem;
-      margin: 0;
-      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      min-height: 100vh;
+      margin: 0;
     }
     #canvas {
       display: none;
@@ -37,15 +37,39 @@
       color: white;
       padding: 1rem;
       font-size: 0.9rem;
-      margin-top: 2rem;
+      width: 100%;
+      text-align: center;
+      position: absolute;
+      bottom: 0;
+    }
+    .preview-box {
+      border: 2px dashed #ccc;
+      margin-top: 1rem;
+      padding: 10px;
+      width: 300px;
+      height: auto;
+    }
+    .preview-box img {
+      max-width: 100%;
+      max-height: 300px;
     }
   </style>
 </head>
 <body>
 
   <h1>📷 قارئ كود QR</h1>
+
   <input type="file" accept="image/*" id="upload" />
+  <p>أو أدخل رابط صورة:</p>
+  <input type="text" id="imageURL" placeholder="ألصق رابط الصورة هنا" style="width: 300px; padding: 5px;" />
+  <button onclick="loadImageFromURL()">📥 تحميل من الرابط</button>
+
   <canvas id="canvas"></canvas>
+
+  <div class="preview-box">
+    <img id="preview" src="" alt="صورة QR" />
+  </div>
+
   <div id="result">لم يتم قراءة الكود بعد.</div>
   <button id="linkBtn">اذهب إلى الرابط</button>
 
@@ -54,40 +78,61 @@
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
   <script>
     const upload = document.getElementById('upload');
+    const imageURL = document.getElementById('imageURL');
     const canvas = document.getElementById('canvas');
     const result = document.getElementById('result');
     const linkBtn = document.getElementById('linkBtn');
+    const preview = document.getElementById('preview');
     const ctx = canvas.getContext('2d');
+
+    function processImage(img) {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const code = jsQR(imageData.data, imageData.width, imageData.height);
+      if (code) {
+        result.textContent = `📄 محتوى الكود: ${code.data}`;
+        if (code.data.startsWith("http://") || code.data.startsWith("https://")) {
+          linkBtn.style.display = 'inline-block';
+          linkBtn.onclick = () => {
+            window.open(code.data, '_blank');
+          };
+        } else {
+          linkBtn.style.display = 'none';
+        }
+      } else {
+        result.textContent = '❌ لم يتم العثور على كود QR في الصورة.';
+        linkBtn.style.display = 'none';
+      }
+    }
 
     upload.addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (!file) return;
       const img = new Image();
       img.onload = () => {
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const code = jsQR(imageData.data, imageData.width, imageData.height);
-        if (code) {
-          result.textContent = `📄 محتوى الكود: ${code.data}`;
-          if (code.data.startsWith("http://") || code.data.startsWith("https://")) {
-            linkBtn.style.display = 'inline-block';
-            linkBtn.onclick = () => {
-              window.open(code.data, '_blank');
-            };
-          } else {
-            linkBtn.style.display = 'none';
-          }
-        } else {
-          result.textContent = '❌ لم يتم العثور على كود QR في الصورة.';
-          linkBtn.style.display = 'none';
-        }
+        preview.src = img.src;
+        processImage(img);
       };
       img.src = URL.createObjectURL(file);
     });
 
-    // تحديد السنة الحالية تلقائياً
+    function loadImageFromURL() {
+      const url = imageURL.value.trim();
+      if (!url) return;
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        preview.src = img.src;
+        processImage(img);
+      };
+      img.onerror = () => {
+        result.textContent = '⚠️ فشل تحميل الصورة من الرابط.';
+      };
+      img.src = url;
+    }
+
     document.getElementById('year').textContent = new Date().getFullYear();
   </script>
 
