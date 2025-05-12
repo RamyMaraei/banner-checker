@@ -1,3 +1,4 @@
+<!-- ✅ النسخة النهائية بعد التصحيح الكامل -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -196,23 +197,7 @@
     <button onclick="window.open('https://docs.google.com/spreadsheets/d/1CYZxS3TU-L6s4CbqLV0uO9KGYkrn43-0iSyq62w8FGc/edit?usp=sharing', '_blank')" id="editBtn">
       ➕ أضف / عدل قناة
     </button>
-
-
-
-<span id="qrButtonContainer"></span>
-<script>
-  const lang = localStorage.getItem("lang") || "ar";
-  const btn = document.createElement("button");
-  btn.onclick = () => window.open('https://ramy-maraei.github.io/QRCodeReader/', '_blank');
-  btn.innerHTML = lang === "ar" ? "📷 قارئ QR" : "📷 QR Scanner";
-  document.getElementById("qrButtonContainer").appendChild(btn);
-</script>
-
-
-
-
-
-
+    <span id="qrButtonContainer"></span>
   </div>
 
   <div class="channel-count-label" id="channelLabel"></div>
@@ -237,7 +222,8 @@
         add: "➕ أضف / عدل قناة",
         count: n => `تم تحميل ${n} قناة`,
         label: "عدد القنوات بالصفحة",
-        footer: "© 2025 شركة الفان – تصميم وتنفيذ رامي مرعي | البيانات مأخوذة من منصة YouTube"
+        footer: "© 2025 شركة الفان – تصميم وتنفيذ رامي مرعي | البيانات مأخوذة من منصة YouTube",
+        qr: "قارئ QR"
       },
       en: {
         title: "YouTube Banner Checker",
@@ -247,7 +233,8 @@
         add: "➕ Add / Edit Channel",
         count: n => `${n} channels loaded`,
         label: "Number of channels on page",
-        footer: "© 2025 Alfan Co. – Designed and developed by Ramy Maraei | Data powered by YouTube"
+        footer: "© 2025 Alfan Co. – Designed and developed by Ramy Maraei | Data powered by YouTube",
+        qr: "QR Scanner"
       }
     };
 
@@ -324,6 +311,8 @@
       document.getElementById("editBtn").textContent = translations[lang].add;
       document.getElementById("channelLabel").textContent = translations[lang].label;
       document.getElementById("footerText").textContent = translations[lang].footer;
+      document.getElementById("qrButtonContainer").innerHTML = `<button onclick="window.open('https://ramy-maraei.github.io/QRCodeReader/', '_blank')">📷 ${translations[lang].qr}</button>`;
+
       if (allData.length > 0) {
         document.getElementById("channelCount").textContent = translations[lang].count(allData.length);
       }
