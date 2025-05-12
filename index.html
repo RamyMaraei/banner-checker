@@ -197,9 +197,16 @@
       ➕ أضف / عدل قناة
     </button>
 
-<button onclick="window.open('https://ramymaraei.github.io/banner-checker/QRCodeReader.html', '_blank')">
-  📷 قارئ QR
-</button>
+<span id="qrButtonContainer"></span>
+
+<script>
+  const lang = localStorage.getItem("lang") || "ar";
+  const btn = document.createElement("button");
+  btn.onclick = () => window.open('https://ramy-maraei.github.io/QRCodeReader/', '_blank');
+  btn.innerHTML = lang === "ar" ? "📷 قارئ QR" : "📷 QR Scanner";
+  document.getElementById("qrButtonContainer").appendChild(btn);
+</script>
+
 
 
   </div>
