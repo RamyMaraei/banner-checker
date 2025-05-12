@@ -22,7 +22,7 @@
       margin-top: 1rem;
       font-size: 1.2rem;
     }
-    #linkBtn {
+    #linkBtn, #clearBtn {
       margin-top: 1rem;
       padding: 0.5rem 1rem;
       background-color: #0b2131;
@@ -63,6 +63,7 @@
   <p>أو أدخل رابط صورة:</p>
   <input type="text" id="imageURL" placeholder="ألصق رابط الصورة هنا" style="width: 300px; padding: 5px;" />
   <button onclick="loadImageFromURL()">📥 تحميل من الرابط</button>
+  <button id="clearBtn" onclick="clearImage()">🗑️ مسح الصورة</button>
 
   <canvas id="canvas"></canvas>
 
@@ -82,6 +83,7 @@
     const canvas = document.getElementById('canvas');
     const result = document.getElementById('result');
     const linkBtn = document.getElementById('linkBtn');
+    const clearBtn = document.getElementById('clearBtn');
     const preview = document.getElementById('preview');
     const ctx = canvas.getContext('2d');
 
@@ -105,6 +107,7 @@
         result.textContent = '❌ لم يتم العثور على كود QR في الصورة.';
         linkBtn.style.display = 'none';
       }
+      clearBtn.style.display = 'inline-block';
     }
 
     upload.addEventListener('change', (e) => {
@@ -129,8 +132,19 @@
       };
       img.onerror = () => {
         result.textContent = '⚠️ فشل تحميل الصورة من الرابط.';
+        clearBtn.style.display = 'none';
       };
       img.src = url;
+    }
+
+    function clearImage() {
+      preview.src = "";
+      canvas.width = canvas.height = 0;
+      result.textContent = 'لم يتم قراءة الكود بعد.';
+      linkBtn.style.display = 'none';
+      clearBtn.style.display = 'none';
+      upload.value = "";
+      imageURL.value = "";
     }
 
     document.getElementById('year').textContent = new Date().getFullYear();
