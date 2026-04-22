@@ -1,4 +1,3 @@
-<!-- ✅ النسخة النهائية بعد التصحيح الكامل -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -14,6 +13,8 @@
       --box: #1e1e1e;
       --button: #333;
       --link: #7abaff;
+      --accepted: #00c853;
+      --rejected: #ff1744;
     }
 
     body.light {
@@ -155,6 +156,21 @@
       text-decoration: none;
     }
 
+    .status-badge {
+      text-align: center;
+      font-weight: bold;
+      margin: 12px 0;
+      font-size: 15px;
+    }
+
+    .status-accepted {
+      color: var(--accepted);
+    }
+
+    .status-rejected {
+      color: var(--rejected);
+    }
+
     #backToTop {
       display: none;
       position: fixed;
@@ -188,15 +204,21 @@
       <button onclick="setCategory('Network')">Network</button>
       <button onclick="setCategory('Music')">Music</button>
     </div>
+
     <button onclick="toggleLang()">🌐 EN / AR</button>
+
     <span class="search-box">
       <input type="text" id="searchInput" placeholder="ابحث باسم القناة" oninput="filterChannels()" />
     </span>
+
     <button onclick="loadChannels()" id="updateBtn">🔄 تحديث</button>
+    <button onclick="toggleRejectedFilter()" id="rejectFilterBtn">❌ المخالف فقط</button>
     <button onclick="toggleMode()" id="themeBtn">🌓 تبديل الوضع</button>
+
     <button onclick="window.open('https://docs.google.com/spreadsheets/d/1CYZxS3TU-L6s4CbqLV0uO9KGYkrn43-0iSyq62w8FGc/edit?usp=sharing', '_blank')" id="editBtn">
       ➕ أضف / عدل قناة
     </button>
+
     <span id="qrButtonContainer"></span>
   </div>
 
@@ -212,6 +234,7 @@
     let category = "VIP";
     let allData = [];
     let currentLang = localStorage.getItem("lang") || "ar";
+    let showRejectedOnly = false;
 
     const translations = {
       ar: {
@@ -220,10 +243,14 @@
         update: "🔄 تحديث",
         toggle: "🌓 تبديل الوضع",
         add: "➕ أضف / عدل قناة",
-        count: n => `تم تحميل ${n} قناة`,
+        rejectedOnly: "❌ المخالف فقط",
+        showAll: "📋 عرض الكل",
         label: "عدد القنوات بالصفحة",
         footer: "© 2025 شركة الفان – تصميم وتنفيذ رامي مرعي | البيانات مأخوذة من منصة YouTube",
-        qr: "قارئ QR"
+        qr: "قارئ QR",
+        acceptedText: "✅ Accepted, compatible with Alfan standards",
+        rejectedText: "❌ Rejected, not compatible with Alfan standards",
+        countText: (total, rejected) => `تم تحميل ${total} قناة | المرفوض: ${rejected}`
       },
       en: {
         title: "YouTube Banner Checker",
@@ -231,10 +258,14 @@
         update: "🔄 Update",
         toggle: "🌓 Toggle Theme",
         add: "➕ Add / Edit Channel",
-        count: n => `${n} channels loaded`,
+        rejectedOnly: "❌ Rejected Only",
+        showAll: "📋 Show All",
         label: "Number of channels on page",
         footer: "© 2025 Alfan Co. – Designed and developed by Ramy Maraei | Data powered by YouTube",
-        qr: "QR Scanner"
+        qr: "QR Scanner",
+        acceptedText: "✅ Accepted, compatible with Alfan standards",
+        rejectedText: "❌ Rejected, not compatible with Alfan standards",
+        countText: (total, rejected) => `${total} channels loaded | Rejected: ${rejected}`
       }
     };
 
@@ -253,48 +284,80 @@
         .then(res => res.json())
         .then(data => {
           allData = data;
-          renderChannels(data);
+          applyFilters();
         })
         .catch(error => {
           document.getElementById("channels").innerHTML = "<p>⚠️ فشل في تحميل البيانات.</p>";
         });
     }
 
+    function applyFilters() {
+      const keyword = document.getElementById("searchInput").value.toLowerCase();
+
+      let filtered = allData.filter(c =>
+        c["Channel Name"]?.toLowerCase().includes(keyword)
+      );
+
+      if (showRejectedOnly) {
+        filtered = filtered.filter(c => (c["Alfan Status"] || "").trim() === "Rejected");
+      }
+
+      renderChannels(filtered);
+    }
+
     function renderChannels(data) {
       const container = document.getElementById("channels");
       const count = document.getElementById("channelCount");
       const label = document.getElementById("channelLabel");
+
       container.innerHTML = "";
-      count.textContent = translations[currentLang].count(data.length);
+
+      const rejectedCount = data.filter(c => (c["Alfan Status"] || "").trim() === "Rejected").length;
+      count.textContent = translations[currentLang].countText(data.length, rejectedCount);
       label.textContent = translations[currentLang].label;
 
       data.forEach(channel => {
-        const { "Channel ID": id, "Channel Name": name, "Avatar URL": avatar, "Banner URL": banner, "Alfan Status": status } = channel;
+        const {
+          "Channel ID": id,
+          "Channel Name": name,
+          "Avatar URL": avatar,
+          "Banner URL": banner,
+          "Alfan Status": status
+        } = channel;
+
         const url = `https://www.youtube.com/channel/${id}`;
+        const cleanStatus = (status || "").trim();
+        const isAccepted = cleanStatus === "Accepted";
 
         const div = document.createElement("div");
         div.className = "channel";
-div.innerHTML = `
-  <div class="channel-name">${name}</div>
-  <a class="channel-link" href="${url}" target="_blank">${url}</a>
+        div.innerHTML = `
+          <div class="channel-name">${name}</div>
+          <a class="channel-link" href="${url}" target="_blank">${url}</a>
 
-  <div style="text-align:center; font-weight:bold; margin:10px 0; color:${status === 'Accepted' ? '#00c853' : '#ff1744'};">
-    ${status === 'Accepted'
-      ? '✅ Accepted, compatible with Alfan standards'
-      : '❌ Rejected, not compatible with Alfan standards'}
-  </div>
+          <div class="status-badge ${isAccepted ? 'status-accepted' : 'status-rejected'}">
+            ${isAccepted ? translations[currentLang].acceptedText : translations[currentLang].rejectedText}
+          </div>
 
-  <img src="${avatar}" alt="Avatar" style="width:80px; height:80px; border-radius:50%; object-fit:cover; margin:10px auto;" />
-  <img src="${banner}" alt="Banner" style="display:block; width:512px; height:80px; object-fit:none; object-position:center center; overflow:hidden; border-radius:10px; margin:10px auto;" />
-`;
+          <img src="${avatar}" alt="Avatar" style="width:80px; height:80px; border-radius:50%; object-fit:cover; margin:10px auto;" />
+          <img src="${banner}" alt="Banner" style="display:block; width:512px; height:80px; object-fit:none; object-position:center center; overflow:hidden; border-radius:10px; margin:10px auto;" />
+        `;
         container.appendChild(div);
       });
     }
 
     function filterChannels() {
-      const keyword = document.getElementById("searchInput").value.toLowerCase();
-      const filtered = allData.filter(c => c["Channel Name"]?.toLowerCase().includes(keyword));
-      renderChannels(filtered);
+      applyFilters();
+    }
+
+    function toggleRejectedFilter() {
+      showRejectedOnly = !showRejectedOnly;
+      document.getElementById("rejectFilterBtn").textContent =
+        showRejectedOnly
+          ? translations[currentLang].showAll
+          : translations[currentLang].rejectedOnly;
+
+      applyFilters();
     }
 
     function toggleMode() {
@@ -307,6 +370,7 @@ div.innerHTML = `
       currentLang = currentLang === "ar" ? "en" : "ar";
       localStorage.setItem("lang", currentLang);
       applyLang();
+      applyFilters();
     }
 
     function applyLang() {
@@ -318,16 +382,23 @@ div.innerHTML = `
       document.getElementById("editBtn").textContent = translations[lang].add;
       document.getElementById("channelLabel").textContent = translations[lang].label;
       document.getElementById("footerText").textContent = translations[lang].footer;
-      document.getElementById("qrButtonContainer").innerHTML = `<button onclick="window.open('https://ramymaraei.github.io/banner-checker/QRCodeReader.html', '_blank')">📷 ${translations[lang].qr}</button>`;
+      document.getElementById("rejectFilterBtn").textContent =
+        showRejectedOnly ? translations[lang].showAll : translations[lang].rejectedOnly;
+
+      document.getElementById("qrButtonContainer").innerHTML =
+        `<button onclick="window.open('https://ramymaraei.github.io/banner-checker/QRCodeReader.html', '_blank')">📷 ${translations[lang].qr}</button>`;
 
       if (allData.length > 0) {
-        document.getElementById("channelCount").textContent = translations[lang].count(allData.length);
+        const displayedRejectedCount = allData.filter(c => (c["Alfan Status"] || "").trim() === "Rejected").length;
+        document.getElementById("channelCount").textContent =
+          translations[lang].countText(allData.length, displayedRejectedCount);
       }
     }
 
     if (localStorage.getItem("theme") === "light") {
       document.body.classList.add("light");
     }
+
     applyLang();
 
     const backToTopBtn = document.getElementById("backToTop");
